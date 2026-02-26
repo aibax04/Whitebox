@@ -1,4 +1,3 @@
-
 # Whitebox Dashboard
 
 This project has been restructured for better organization.
@@ -48,3 +47,4 @@ To start monitoring/chatter (these run independently):
 python3 monitor_agents.py
 python3 agent_chatter.py
 ```
+
