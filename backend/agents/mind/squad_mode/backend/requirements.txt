@@ -1,0 +1,10 @@
+# Minimal requirements for legacy Python scripts (embed_repo.py, search_repo.py)
+# Note: These scripts are no longer used by the application (migrated to Node.js)
+# Kept here only in case they need to be run manually
+
+# Direct dependencies used in Python scripts
+numpy>=1.26.4
+tqdm>=4.67.1
+sentence-transformers>=2.2.0
+GitPython>=3.1.44
+faiss-cpu>=1.7.4

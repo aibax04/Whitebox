@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhiteBox PSI | Multi-Agent SDLC Command Center</title>
+    <meta name="description"
+        content="WhiteBox PSI Multi-Agent Command Center - Orchestrating AI agents for end-to-end software development lifecycle management.">
+    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="static/styles.css?v=2">
+    <style>
+        .activity-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .activity-item {
+            background: #111;
+            border: 1px solid #222;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .activity-details {
+            flex: 1;
+        }
+        .activity-time {
+            font-size: 10px;
+            color: #555;
+            font-family: var(--font-mono);
+        }
+        .activity-text {
+            font-size: 13px;
+            color: #ccc;
+        }
+    </style>
+</head>
+
+<body class="">
+    <!-- ═══════ SIDEBAR ═══════ -->
+    <aside>
+        <a href="home.html" class="logo-area" style="text-decoration:none;color:inherit;">
+            <img src="logo.png" alt="WhiteBox PSI" class="logo-img">
+            <div class="logo-text">
+                <span class="brand">WhiteBox PSI</span>
+                <span class="tagline">Multi-Agent SDLC</span>
+            </div>
+        </a>
+
+        <div class="system-pulse">
+            <div class="pulse-dot"></div>
+            <span class="pulse-label">SYSTEM ONLINE</span>
+            <span class="pulse-time" id="sidebar-time">--:--</span>
+        </div>
+
+        <div class="aura-container">
+            <div class="aura-label">SQUAD AURA</div>
+
+            <div class="aura-bar-container">
+                <div class="aura-bar" style="background:#ff0000;"></div>
+            </div>
+        </div>
+
+        <div class="nav-section-title">Navigation</div>
+        <nav class="nav-menu">
+            <a href="home.html" class="nav-item" style="text-decoration:none;color:inherit;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Home
+            </a>
+            <div class="nav-item active" onclick="switchView('dashboard')" id="nav-dashboard">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                </svg>
+                Dashboard
+            </div>
+            <div class="nav-item" onclick="switchView('agents')" id="nav-agents">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                Agents
+                <span class="nav-badge" id="agent-count">10</span>
+            </div>
+            <div class="nav-item" onclick="switchView('tasks')" id="nav-tasks">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1"></rect>
+                </svg>
+                Tasks
+                <span class="nav-badge" id="task-count">0</span>
+            </div>
+            <div class="nav-item" onclick="switchView('execution')" id="nav-execution">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+                Execution
+            </div>
+            <div class="nav-item" onclick="switchView('live')" id="nav-live">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M23 6l-9.5 9.5-5-5L1 18"></path>
+                    <path d="M17 6h6v6"></path>
+                </svg>
+                Live Activity
+                <span class="pulse-dot" style="margin-left:8px; width:6px; height:6px; background:#00ff00;"></span>
+            </div>
+
+            <div class="nav-divider"></div>
+            <div class="nav-section-title">Operations</div>
+
+            <div class="nav-item" onclick="switchView('review')" id="nav-review">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Visual Review
+            </div>
+            <div class="nav-item" onclick="switchView('learning')" id="nav-learning">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                Skill Learning
+            </div>
+            <div class="nav-item" onclick="switchView('squadmate')" id="nav-squadmate">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+                Squad Mate
+            </div>
+
+            <div class="nav-divider"></div>
+
+
+        </nav>
+
+        <div class="sidebar-section">
+            <h3>Active Projects</h3>
+            <div id="project-list"></div>
+        </div>
+    </aside>
+
+    <!-- ═══════ MAIN CONTENT ═══════ -->
+    <main>
+        <header>
+            <div class="header-left">
+                <h1 id="view-title">COMMAND CENTER</h1>
+                <div class="subtitle" id="last-update">Initializing system pulse...</div>
+            </div>
+            <div class="header-right">
+                <div class="header-badge" id="mvp-badge" title="Today's MVP Agent">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon
+                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                        </polygon>
+                    </svg>
+                    <span id="mvp-name">—</span>
+                </div>
+                <div class="header-badge online">
+                    <div class="pulse-dot"></div>
+                    OPERATIONAL
+                </div>
+            </div>
+        </header>
+
+        <!-- ═══════ DASHBOARD VIEW ═══════ -->
+        <div id="view-dashboard" class="view-container active">
+            <!-- Hero Banner -->
+            <div class="hero-banner">
+                <img src="hero_banner.png" alt="Command Center">
+                <div class="hero-overlay">
+                    <div>
+                        <div style="font-size: 18px; font-weight: 800; margin-bottom: 4px;">Multi-Agent Orchestration
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-muted);">End-to-end SDLC automation powered by
+                            autonomous AI agents</div>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <div class="value green" id="stat-agents">10</div>
+                            <div class="label">Agents</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="value blue" id="stat-tasks">0</div>
+                            <div class="label">Active Tasks</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="value purple" id="stat-tokens">0k</div>
+                            <div class="label">Tokens Used</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="value" id="stat-uptime">99.9%</div>
+                            <div class="label">Uptime</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mini Stats -->
+            <div class="grid-4" id="mini-stats">
+                <div class="stat-card">
+                    <div class="label">System Health</div>
+                    <div class="value" style="color: var(--ready);">● Optimal</div>
+                    <div class="change positive">↑ All agents responsive</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Active Agents</div>
+                    <div class="value" id="active-agent-count" style="color: var(--active);">0</div>
+                    <div class="change positive">of 10 total agents</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Success Rate</div>
+                    <div class="value" id="avg-success" style="color: var(--ready);">0%</div>
+                    <div class="change positive">↑ Avg across squad</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Daily MVP</div>
+                    <div class="value" id="daily-mvp-stat" style="font-size: 20px;">—</div>
+                    <div class="change positive">★ Top performer</div>
+                </div>
+            </div>
+
+            <!-- Workflow Pipeline -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="dot"></span> AGENT PIPELINE</div>
+                    <div class="panel-action">View Details →</div>
+                </div>
+                <div class="flow-container">
+                    <div class="flow-line"></div>
+                    <div class="flow-node">
+                        <div class="node-circle active">WB</div>
+                        <div class="node-label">White Box</div>
+                    </div>
+                    <div class="flow-node">
+                        <div class="node-circle">CX</div>
+                        <div class="node-label">Cortex</div>
+                    </div>
+                    <div class="flow-node">
+                        <div class="node-circle">CL</div>
+                        <div class="node-label">COUNCIL</div>
+                    </div>
+                    <div class="flow-node">
+                        <div class="node-circle">P</div>
+                        <div class="node-label">Pilot</div>
+                    </div>
+                    <div class="flow-node">
+                        <div class="node-circle">C</div>
+                        <div class="node-label">Correspondent</div>
+                    </div>
+                    <div class="flow-node">
+                        <div class="node-circle">S</div>
+                        <div class="node-label">Strategist</div>
+                    </div>
+                    <div class="flow-node">
+                        <div class="node-circle">E</div>
+                        <div class="node-label">Enhancer</div>
+                    </div>
+                    <div class="flow-node">
+                        <div class="node-circle">A</div>
+                        <div class="node-label">Auditor</div>
+                    </div>
+                    <div class="flow-node">
+                        <div class="node-circle">I</div>
+                        <div class="node-label">Insight</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agent Grid -->
+            <div class="grid-2" id="agent-grid"></div>
+
+            <!-- Analytics Leaderboard -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="dot blue"></span> AGENT PERFORMANCE LEADERBOARD</div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Rank & Agent</th>
+                            <th>Points</th>
+                            <th>Tokens (k)</th>
+                            <th>Success</th>
+                            <th>Fidelity</th>
+                            <th>Efficiency</th>
+                            <th>Autonomy</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analytics-body"></tbody>
+                </table>
+            </div>
+
+            <!-- Live Terminal -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="4 17 10 11 4 5"></polyline>
+                            <line x1="12" y1="19" x2="20" y2="19"></line>
+                        </svg>
+                        SQUAD COMMAND TERMINAL
+                    </div>
+                    <div class="panel-action" onclick="document.getElementById('terminal-history').scrollTop=0">↑ Latest
+                    </div>
+                </div>
+                <div class="terminal" id="terminal-history">
+                    <div class="terminal-header">
+                        <div class="terminal-dot red"></div>
+                        <div class="terminal-dot yellow"></div>
+                        <div class="terminal-dot green"></div>
+                        <div class="terminal-title">whiteboxpsi@command ~ live-feed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════ AGENTS VIEW ═══════ -->
+        <div id="view-agents" class="view-container">
+            <div class="grid-2" id="agents-list-full"></div>
+        </div>
+
+        <!-- ═══════ TASKS VIEW ═══════ -->
+        <div id="view-tasks" class="view-container">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="dot"></span> ACTIVE MISSION TASKS</div>
+                    <button class="btn btn-primary" style="padding: 6px 14px;">+ NEW TASK</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Assigned To</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Deadline</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tasks-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══════ EXECUTION VIEW ═══════ -->
+        <div id="view-execution" class="view-container">
+            <div class="panel" style="flex: 1;">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="dot blue"></span> REAL-TIME EXECUTION LOGS</div>
+                </div>
+                <div id="execution-logs" style="display: flex; flex-direction: column; gap: 12px;"></div>
+            </div>
+        </div>
+
+        <!-- ═══════ LIVE ACTIVITY VIEW ═══════ -->
+        <div id="view-live" class="view-container">
+            <div class="panel" style="flex: 1;">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="dot" style="background:#00ff00;"></span> SQUAD ACTIVITY STREAM</div>
+                    <div class="panel-action">Live Connection Active</div>
+                </div>
+                <div id="live-activity-list" class="activity-feed">
+                    <div style="text-align:center; padding:40px; color:#555;">Waiting for squad activity...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════ VISUAL REVIEW VIEW ═══════ -->
+        <div id="view-review" class="view-container">
+            <div id="review-list" class="grid-auto"></div>
+            <div id="review-empty" class="panel" style="text-align: center; padding: 60px;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="1.5"
+                    style="margin-bottom: 16px;">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <div style="color: var(--text-muted); font-size: 14px; font-weight: 600;">No Pending Reviews</div>
+                <div style="color: var(--text-dim); font-size: 12px; margin-top: 4px;">Content reviews from agents will\n                    appear here for approval</div>
+            </div>
+        </div>
+
+        <!-- ═══════ SKILL LEARNING VIEW ═══════ -->
+        <div id="view-learning" class="view-container">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="dot purple"></span> UPGRADE AGENT CAPABILITIES</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 16px; max-width: 640px;">
+                    <label style="font-size: 11px; color: var(--text-muted); font-weight: 600;">SKILL TOPIC OR SOURCE
+                        URL</label>
+                    <input type="text" id="skill-input" class="input"
+                        placeholder="e.g. https://docs.openai.com/agents or 'Advanced Python Optimization'">
+                    <button onclick="submitSkill()" id="skill-submit-btn" class="btn btn-primary"
+                        style="align-self: flex-start;">INGEST NEW SKILL</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="dot"></span> LEARNING PIPELINE</div>
+                </div>
+                <div id="learning-status-list" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div style="font-size: 12px; color: var(--text-dim); text-align: center; padding: 40px;">Ready to
+                        ingest new knowledge.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════ SQUAD MATE VIEW ═══════ -->
+        <div id="view-squadmate" class="view-container">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="dot blue"></span> REPOSITORY EXPANSION PROTOCOL</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div style="display: flex; gap: 12px;">
+                        <input type="text" id="repo-url-input" class="input"
+                            placeholder="Paste GitHub Repository URL (e.g., https://github.com/user/repo)"
+                            style="flex: 1;">
+                        <button onclick="launchRepoMission()" id="repo-launch-btn" class="btn btn-primary">LAUNCH
+                            MISSION</button>
+                    </div>
+                    <div class="grid-3">
+                        <div class="phase-card">
+                            <div class="phase-num">Phase 1</div>
+                            <div class="phase-name">Cloning & Analysis</div>
+                        </div>
+                        <div class="phase-card">
+                            <div class="phase-num">Phase 2</div>
+                            <div class="phase-name">Dependency Resolution</div>
+                        </div>
+                        <div class="phase-card">
+                            <div class="phase-num">Phase 3</div>
+                            <div class="phase-name">Environment Launch</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">MISSION TERMINAL</div>
+                </div>
+                <div class="terminal" id="repo-logs" style="min-height: 200px;">
+                    <div class="terminal-header">
+                        <div class="terminal-dot red"></div>
+                        <div class="terminal-dot yellow"></div>
+                        <div class="terminal-dot green"></div>
+                        <div class="terminal-title">whiteboxpsi@squadmate ~ repo-mission</div>
+                    </div>
+                    <div class="log-entry"><span class="log-time">[WAIT]</span> <span
+                            class="log-tag system">system</span> <span class="log-msg">Ready for repository mission
+                            input...</span></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        /* ═══════ STATE ═══════ */
+        let currentView = 'dashboard';
+        let updateTimeout;
+        let neonMode = false;
+        let isInitialLoad = true;
+        let lastDataJSON = '';
+
+        /* ═══════ AGENT COLORS ═══════ */
+        const AGENT_COLORS = {
+            'White Box': { bg: 'rgba(255,0,0,0.1)', border: 'rgba(255,0,0,0.3)', text: '#ff0000' },
+            'Cortex': { bg: 'rgba(255,0,0,0.1)', border: 'rgba(255,0,0,0.3)', text: '#ff0000' },
+            'COUNCIL': { bg: 'rgba(255,0,0,0.1)', border: 'rgba(255,0,0,0.3)', text: '#ff0000' },
+            'Pilot': { bg: 'rgba(255,0,0,0.1)', border: 'rgba(255,0,0,0.3)', text: '#ff0000' },
+            'Correspondent': { bg: 'rgba(255,0,0,0.1)', border: 'rgba(255,0,0,0.3)', text: '#ff0000' },
+            'Strategist': { bg: 'rgba(255,0,0,0.1)', border: 'rgba(255,0,0,0.3)', text: '#ff0000' },
+            'Auditor': { bg: 'rgba(255,0,0,0.1)', border: 'rgba(255,0,0,0.3)', text: '#ff0000' },
+            'Enhancer': { bg: 'rgba(255,0,0,0.1)', border: 'rgba(255,0,0,0.3)', text: '#ff0000' },
+            'Insight': { bg: 'rgba(255,0,0,0.1)', border: 'rgba(255,0,0,0.3)', text: '#ff0000' },
+            'Promoter': { bg: 'rgba(255,0,0,0.1)', border: 'rgba(255,0,0,0.3)', text: '#ff0000' },
+            'Nonstop': { bg: 'rgba(0,255,0,0.1)', border: 'rgba(0,255,0,0.3)', text: '#00ff00' }
+        };
+
+        const AGENT_ICONS = {
+            'White Box': '◆', 'Cortex': '◉', 'COUNCIL': '⬡', 'Pilot': '▲',
+            'Correspondent': '✦', 'Strategist': '♟', 'Auditor': '◈',
+            'Enhancer': '✧', 'Insight': '◎', 'Promoter': '◇', 'Nonstop': '♾'
+        };
+
+        /* ═══════ NAV ═══════ */
+        function switchView(viewId) {
+            currentView = viewId;
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${viewId}`).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            const navEl = document.getElementById(`nav-${viewId}`);
+            if (navEl) navEl.classList.add('active');
+
+            const titles = {
+                dashboard: 'COMMAND CENTER', agents: 'AGENT MANAGEMENT', tasks: 'TASK COORDINATION',
+                execution: 'SYSTEM EXECUTION', review: 'VISUAL REVIEW', learning: 'KNOWLEDGE INGESTION',
+                squadmate: 'SQUAD MATE: REPO EXPANSION', live: 'LIVE ACTIVITY FEED'
+            };
+            document.getElementById('view-title').innerText = titles[viewId] || viewId.toUpperCase();
+            updateDashboard();
+        }
+
+        /* ═══════ UPDATE CLOCK ═══════ */
+        function updateClock() {
+            const now = new Date();
+            const sidebarTime = document.getElementById('sidebar-time');
+            if (sidebarTime) {
+                sidebarTime.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        /* ═══════ API CALLS ═══════ */
+        async function launchRepoMission() {
+            const input = document.getElementById('repo-url-input');
+            const btn = document.getElementById('repo-launch-btn');
+            const url = input.value.trim();
+            if (!url) return;
+            btn.disabled = true; btn.innerText = 'LAUNCHING...';
+            try {
+                const response = await fetch('http://localhost:35002/chat', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: url })
+                });
+                await response.json();
+                input.value = '';
+            } catch (err) { console.error('Launch failed:', err); }
+            finally { btn.disabled = false; btn.innerText = 'LAUNCH MISSION'; }
+        }
+
+        async function submitSkill() {
+            const input = document.getElementById('skill-input');
+            const btn = document.getElementById('skill-submit-btn');
+            const topic = input.value.trim();
+            if (!topic) return;
+            btn.disabled = true; btn.innerText = 'INGESTING...'; btn.style.opacity = '0.6';
+            try {
+                const response = await fetch('http://localhost:35002/learn', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic })
+                });
+                await response.json();
+                input.value = '';
+                updateDashboard();
+            } catch (err) { console.error('Learning failed:', err); alert('Connection to WhiteBox API lost.'); }
+            finally { btn.disabled = false; btn.innerText = 'INGEST NEW SKILL'; btn.style.opacity = '1'; }
+        }
+
+        async function handleReview(id, action) {
+            try {
+                const response = await fetch('http://localhost:35002/action', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ review_id: id, action })
+                });
+                await response.json();
+                updateDashboard();
+            } catch (err) { console.error('Action failed:', err); alert('Connection to WhiteBox API lost.'); }
+        }
+
+        /* ═══════ THEME TOGGLE ═══════ */
+        function toggleNeon() {
+            const isPixel = document.body.classList.contains('pixel-office');
+            const isNeon = document.body.classList.contains('neon-mode');
+
+            if (isPixel) {
+                document.body.classList.remove('pixel-office');
+                document.body.classList.add('neon-mode');
+            } else if (isNeon) {
+                document.body.classList.remove('neon-mode');
+            } else {
+                document.body.classList.add('pixel-office');
+            }
+
+            updateThemeButton();
+        }
+
+        function updateThemeButton() {
+            const toggle = document.getElementById('neon-toggle');
+            if (!toggle) return;
+
+            if (document.body.classList.contains('pixel-office')) {
+                toggle.innerHTML = `<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z\"></path></svg> Mode: PIXEL`;
+                toggle.style.color = 'var(--ready)';
+            } else if (document.body.classList.contains('neon-mode')) {
+                toggle.innerHTML = `<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z\"></path></svg> Mode: NEON`;
+                toggle.style.color = 'var(--active)';
+            } else {
+                toggle.innerHTML = `<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"5\"></circle></svg> Mode: CLASSIC`;
+                toggle.style.color = '';
+            }
+        }
+
+        /* ═══════ ANIMATE HELPER ═══════ */
+        function staggerAnimate(selector, parent) {
+            const items = (parent || document).querySelectorAll(selector);
+            items.forEach((el, i) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(8px)';
+                setTimeout(() => {
+                    el.style.transition = 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, i * 60);
+            });
+        }
+
+        /* ═══════ MAIN UPDATE ═══════ */
+        async function updateDashboard() {
+            try {
+                const statusUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? '/status.json'
+                    : 'status.json';
+
+                const response = await fetch(statusUrl + '?' + Date.now());
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+
+                // Header updates
+                const lastActive = data.head?.last_active ? new Date(data.head.last_active).toLocaleTimeString() : '—';
+                const lastUpdateEl = document.getElementById('last-update');
+                if (lastUpdateEl) {
+                    lastUpdateEl.innerText = `Last System Pulse: ${lastActive} · ${new Date().toLocaleDateString()}`;
+                    lastUpdateEl.style.color = '';
+                }
+
+                // Stats
+                const totalTokens = data.agents?.reduce((s, a) => s + (a.metrics?.tokens || 0), 0) || 0;
+                const activeCount = data.agents?.filter(a => a.status === 'active' || a.status === 'success').length || 0;
+                const avgSuccess = data.agents?.length ? Math.round(data.agents.reduce((s, a) => s + (a.metrics?.success_rate || 0), 0) / data.agents.length) : 0;
+
+                const statAgents = document.getElementById('stat-agents');
+                if (statAgents) statAgents.innerText = data.agents?.length || 0;
+
+                const statTasks = document.getElementById('stat-tasks');
+                if (statTasks) statTasks.innerText = data.tasks?.length || 0;
+
+                const statTokens = document.getElementById('stat-tokens');
+                const tokenStr = Math.round(totalTokens * 10) / 10 + 'k';
+                if (statTokens) statTokens.innerText = tokenStr;
+
+                const activeAgentCount = document.getElementById('active-agent-count');
+                if (activeAgentCount) activeAgentCount.innerText = activeCount;
+
+                const avgSuccessEl = document.getElementById('avg-success');
+                if (avgSuccessEl) avgSuccessEl.innerText = avgSuccess + '%';
+
+                // Live Activity View
+                const liveList = document.getElementById('live-activity-list');
+                if (liveList && data.workflow?.history) {
+                    liveList.innerHTML = data.workflow.history.map(h => {
+                        let agentName = "System";
+                        let icon = "⚙️";
+                        let color = "#555";
+                        
+                        // Extract agent name from log if present
+                        const match = h.match(/\[(.*?)\]/);
+                        if (match) {
+                            agentName = match[1];
+                            icon = AGENT_ICONS[agentName] || "●";
+                            color = AGENT_COLORS[agentName]?.text || "#555";
+                        }
+
+                        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                        return `<div class="activity-item">
+                            <div class="activity-icon" style="background:${color}22; color:${color}; border: 1px solid ${color}44;">${icon}</div>
+                            <div class="activity-details">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                                    <span style="font-weight:700; font-size:12px; color:${color};">${agentName.toUpperCase()}</span>
+                                    <span class="activity-time">${time}</span>
+                                </div>
+                                <div class="activity-text">${h}</div>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
+
+                // Agent Cards (Dashboard)
+                const agentGrid = document.getElementById('agent-grid');
+                if (agentGrid) {
+                    agentGrid.innerHTML = data.agents.map((a, i) => {
+                        const isMvp = data.head?.daily_mvp === a.name;
+                        const st = a.status || 'idle';
+                        const colors = AGENT_COLORS[a.name] || { bg: 'rgba(255,0,0,0.1)', border: 'rgba(255,0,0,0.3)', text: '#ff0000' };
+                        const icon = AGENT_ICONS[a.name] || '●';
+                        const sr = a.metrics?.success_rate != null ? a.metrics.success_rate + '%' : '—';
+                        const tk = a.metrics?.tokens != null ? a.metrics.tokens + 'k' : '—';
+                        return `<div class="agent-card ${st}">
+                            <div class="agent-header">
+                                <div>
+                                    <div class="agent-avatar" style="background: ${colors.bg}; border-color: ${colors.border}; color: ${colors.text};">${icon}</div>
+                                    <div class="agent-name">${a.name}${isMvp ? '<span class="mvp-badge">MVP</span>' : ''}</div>
+                                    <div class="agent-role">${a.role || ''}</div>
+                                </div>
+                                <div class="agent-status-badge ${st}">${st}</div>
+                            </div>
+                            <div class="agent-metrics">
+                                <div class="agent-metric"><span>Success</span><span class="val">${sr}</span></div>
+                                <div class="agent-metric"><span>Tokens</span><span class="val">${tk}</span></div>
+                            </div>
+                            <div class="agent-last-action">${a.last_action || 'Standing by.'}</div>
+                        </div>`;
+                    }).join('');
+                }
+
+                // Terminal Logs
+                const termEl = document.getElementById('terminal-history');
+                if (termEl) {
+                    const headerHTML = '<div class="terminal-header"><div class="terminal-dot red"></div><div class="terminal-dot yellow"></div><div class="terminal-dot green"></div><div class="terminal-title">whiteboxpsi@command ~ live-feed</div></div>';
+                    const logsHTML = (data.workflow?.history || []).map(h => {
+                        let tag = 'system', cleanMsg = h;
+                        if (h.includes('💬')) { tag = 'chatter'; cleanMsg = h.replace('💬 ', ''); }
+                        else if (h.includes('✨')) { tag = 'vibe'; cleanMsg = h.replace('✨ ', ''); }
+                        else if (h.includes('MISSION')) { tag = 'mission'; }
+                        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        return `<div class="log-entry"><span class="log-time">[${time}]</span><span class="log-tag ${tag}">${tag}</span><span class="log-msg">${cleanMsg}</span></div>`;
+                    }).join('');
+                    termEl.innerHTML = headerHTML + logsHTML;
+                }
+
+                isInitialLoad = false;
+            } catch (err) {
+                console.error('Dashboard update failed:', err);
+            }
+        }
+
+        // Initial load
+        updateDashboard();
+        setInterval(updateDashboard, 5000);
+    </script>
+</body>
+
+</html>

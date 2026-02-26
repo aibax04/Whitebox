@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+:root {
+    --pixel-font: 'VT323', monospace;
+    --pixel-bg: #1a1a1a;
+    --pixel-border: #4a4a4a;
+    --pixel-accent: #00ff00;
+}
+
+body.pixel-office {
+    font-family: var(--pixel-font);
+    background-color: var(--pixel-bg);
+    image-rendering: pixelated;
+}
+
+body.pixel-office .panel, 
+body.pixel-office .agent-card, 
+body.pixel-office .stat-card,
+body.pixel-office aside {
+    border: 4px solid var(--pixel-border);
+    border-style: outset;
+    border-radius: 0;
+    background: #2a2a2a;
+    box-shadow: 4px 4px 0 #000;
+}
+
+body.pixel-office .logo-img {
+    image-rendering: pixelated;
+    border-radius: 0;
+}
+
+body.pixel-office h1, 
+body.pixel-office h2, 
+body.pixel-office h3,
+body.pixel-office .brand {
+    font-family: var(--pixel-font);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+body.pixel-office .agent-avatar {
+    border-radius: 0;
+    border: 2px solid var(--pixel-border);
+}
+
+body.pixel-office .btn {
+    border-radius: 0;
+    border: 2px solid #000;
+    box-shadow: 2px 2px 0 #000;
+    font-family: var(--pixel-font);
+    font-size: 1.2rem;
+}
+
+body.pixel-office .nav-item {
+    border-radius: 0;
+    font-size: 1.1rem;
+}
+
+body.pixel-office .terminal {
+    border-radius: 0;
+    border: 2px solid var(--pixel-border);
+    background: #000;
+}
+
+/* Pixel Office Animation */
+.agent-card.active {
+    animation: pixel-bounce 0.5s infinite;
+    border-color: var(--pixel-accent);
+}
+
+@keyframes pixel-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+body.pixel-office .flow-node .node-circle {
+    border-radius: 0;
+    border: 2px solid var(--pixel-border);
+}
